@@ -10,20 +10,20 @@ import ReactPlayer from 'react-player';
 
 const BOSTON_IMAGES = {
   hero: "/hero-bg.jpg",
-  acorn: "https://images.unsplash.com/photo-1549405663-8a3fc1850d53?auto=format&fit=crop&q=80&w=1200",
+  acorn: "https://www.trolleytours.com/wp-content/uploads/2016/05/boston-beacon-hill.jpg",
   garden: "https://images.unsplash.com/photo-1588636846187-2bece71d1872?auto=format&fit=crop&q=80&w=1200",
   library: "https://images.unsplash.com/photo-1580131448655-15a0cbbba949?auto=format&fit=crop&q=80&w=1200",
-  northend: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1200",
+  northend: "https://bomag.o0bc.com/wp-content/uploads/sites/2/2017/01/north-end-boston-sq.jpg",
   seaport: "https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&q=80&w=1200",
-  harvard: "https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?auto=format&fit=crop&q=80&w=2400",
+  harvard: "https://newengland.com/wp-content/uploads/legacy_media_photos/9606.jpg",
   gardner: "https://images.unsplash.com/photo-1572947113110-8b0686307a68?auto=format&fit=crop&q=80&w=1200",
-  mfa: "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&q=80&w=1200",
+  mfa: "https://thefenway.com/wp-content/uploads/2023/11/Headline-Feature-MFA-1-1.jpg",
   lobster: "https://images.unsplash.com/photo-1596797882870-8c33dee38b81?auto=format&fit=crop&q=80&w=1200",
   oysters: "https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?auto=format&fit=crop&q=80&w=1200",
   fenway: "https://images.unsplash.com/photo-1548050626-d6211833d7b8?auto=format&fit=crop&q=80&w=1200",
-  trinity: "https://images.unsplash.com/photo-1506546305988-825dddb68e6e?auto=format&fit=crop&q=80&w=1200",
-  charles: "https://images.unsplash.com/photo-1605634599723-1d0fc38ad82d?auto=format&fit=crop&q=80&w=1200",
-  library_in: "https://images.unsplash.com/photo-1544321722-e2c72b22ceb2?auto=format&fit=crop&q=80&w=1200",
+  trinity: "https://museumsofboston.org/wp-content/uploads/2017/02/TrinityChurch_MOB_600x500_3.jpg",
+  charles: "https://bomag.o0bc.com/wp-content/uploads/sites/2/2017/08/charles-river-1.jpg",
+  library_in: "https://www.bpl.org/wp-content/uploads/sites/30/2018/04/McKim-Bates-Hall.jpg",
 };
 
 // ---------------- Navigation & Dynamic Menu ---------------- //
