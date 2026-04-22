@@ -235,7 +235,7 @@ function Lightbox({ image, onClose }: { image: any, onClose: () => void }) {
 
 // ---------------- Audio Player Module ---------------- //
 function AudioPlayerModule({ isPlayingMusic, toggleMusic }: { isPlayingMusic: boolean, toggleMusic: () => void }) {
-  const track = { title: "A Symphony of Lights (Boston)", duration: "Live Audio", loc: "City Atmosphere / YouTube" };
+  const track = { title: "Boston - Augustana", duration: "Live Music", loc: "City Atmosphere / YouTube" };
 
   return (
     <div className="bg-white border border-artistic-border p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-8 lg:gap-12">
@@ -494,27 +494,8 @@ export default function App() {
   const [selectedImage, setSelectedImage] = useState<{url: string, title: string, category: string} | null>(null);
   
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
-
-  useEffect(() => {
-    // Attempt auto-play when user interacts with the document
-    const unlockAutoPlay = () => {
-       setIsPlayingMusic(true);
-       window.removeEventListener('click', unlockAutoPlay);
-       window.removeEventListener('touchstart', unlockAutoPlay);
-       window.removeEventListener('keydown', unlockAutoPlay);
-    };
-    
-    // Listen for valid user gestures to unlock audio playback
-    window.addEventListener('click', unlockAutoPlay);
-    window.addEventListener('touchstart', unlockAutoPlay);
-    window.addEventListener('keydown', unlockAutoPlay);
-    
-    return () => {
-       window.removeEventListener('click', unlockAutoPlay);
-       window.removeEventListener('touchstart', unlockAutoPlay);
-       window.removeEventListener('keydown', unlockAutoPlay);
-    };
-  }, []);
+  const [hasEntered, setHasEntered] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   const toggleSave = (id: string) => {
     setSavedItems(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
@@ -522,19 +503,70 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-artistic-bg text-artistic-text selection:bg-artistic-accent selection:text-white font-serif">
-      {/* Hidden YouTube Background Audio */}
-      <div className="fixed top-0 left-0 w-4 h-4 opacity-0 pointer-events-none z-[-10]">
+      <AnimatePresence>
+        {!hasEntered && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            className="fixed inset-0 z-[200] bg-artistic-bg flex flex-col items-center justify-center cursor-pointer"
+            onClick={() => {
+              if (isPlayerReady) {
+                setHasEntered(true);
+                setIsPlayingMusic(true);
+              }
+            }}
+          >
+             {isPlayerReady ? (
+               <div className="flex flex-col items-center justify-center text-center px-6 mix-blend-multiply">
+                 <motion.div 
+                   animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }} 
+                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                   className="w-3 h-3 rounded-full bg-artistic-accent mb-8" 
+                 />
+                 <h1 className="text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-[-0.02em] text-artistic-accent mb-6">
+                   The Boston Archive
+                 </h1>
+                 <p className="font-sans text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] opacity-60">
+                   Tap anywhere to begin audio experience
+                 </p>
+               </div>
+             ) : (
+               <div className="flex flex-col items-center justify-center text-center px-6 mix-blend-multiply">
+                 <motion.div 
+                   animate={{ rotate: 360 }} 
+                   transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                   className="w-6 h-6 border-2 border-artistic-accent border-t-transparent rounded-full mb-8" 
+                 />
+                 <p className="font-sans text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-artistic-accent opacity-60">
+                   Tuning the frequency...
+                 </p>
+               </div>
+             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* YouTube Background Audio - Must remain partially "visible" to avoid browser autoplay penalties */}
+      <div 
+        className="fixed bottom-0 right-0 pointer-events-none z-[-50] overflow-hidden" 
+        style={{ opacity: 0.01, width: '200px', height: '200px' }}
+      >
         <ReactPlayer 
-          url="https://www.youtube.com/watch?v=4ASJBXu8tNo" 
+          url="https://www.youtube.com/watch?v=4AEQRMKgEUQ" 
           playing={isPlayingMusic} 
           loop={true} 
           volume={0.8} 
           width="100%" 
           height="100%"
           controls={false}
+          onReady={() => setIsPlayerReady(true)}
           config={{
             youtube: {
-              playerVars: { playsinline: 1 }
+              playerVars: { 
+                playsinline: 1,
+                origin: typeof window !== 'undefined' ? window.location.origin : ''
+              }
             }
           }}
         />
