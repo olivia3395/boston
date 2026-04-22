@@ -9,7 +9,7 @@ import { Navigation, ArrowRight, BookmarkPlus, Bookmark, MapPin, Clock, Coffee, 
 import ReactPlayer from 'react-player';
 
 const BOSTON_IMAGES = {
-  hero: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=2400",
+  hero: "/hero-bg.jpg",
   acorn: "https://images.unsplash.com/photo-1549405663-8a3fc1850d53?auto=format&fit=crop&q=80&w=1200",
   garden: "https://images.unsplash.com/photo-1588636846187-2bece71d1872?auto=format&fit=crop&q=80&w=1200",
   library: "https://images.unsplash.com/photo-1580131448655-15a0cbbba949?auto=format&fit=crop&q=80&w=1200",
@@ -497,6 +497,13 @@ export default function App() {
   const [hasEntered, setHasEntered] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
+  useEffect(() => {
+    // Safety fallback: if YouTube iframe takes too long to respond or blocks embedding,
+    // we unlock the UI after 2.5 seconds anyway so the user is never permanently stuck.
+    const timer = setTimeout(() => setIsPlayerReady(true), 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const toggleSave = (id: string) => {
     setSavedItems(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
   };
@@ -561,6 +568,7 @@ export default function App() {
           height="100%"
           controls={false}
           onReady={() => setIsPlayerReady(true)}
+          onError={() => setIsPlayerReady(true)}
           config={{
             youtube: {
               playerVars: { 
@@ -588,15 +596,15 @@ export default function App() {
       
       {/* 1. Hero Section */}
       <section className="relative min-h-screen w-full flex flex-col justify-end p-6 md:p-12 lg:p-20 border-b border-artistic-border">
-        <div className="absolute inset-0 w-full h-full opacity-[0.15] pointer-events-none">
+        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
           <motion.img 
             style={{ y }}
             src={BOSTON_IMAGES.hero} 
-            alt="Boston Skyline" 
-            className="w-full h-full object-cover grayscale"
+            alt="Watercolor Boston Hero" 
+            className="w-full h-[120%] object-cover object-top"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-artistic-bg/60 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-t from-artistic-bg via-artistic-bg/60 to-transparent" />
         </div>
         
         <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col justify-between h-full pt-32">
