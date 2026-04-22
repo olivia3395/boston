@@ -554,29 +554,18 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* YouTube Background Audio - Must remain partially "visible" to avoid browser autoplay penalties */}
-      <div 
-        className="fixed bottom-0 right-0 pointer-events-none z-[-50] overflow-hidden" 
-        style={{ opacity: 0.01, width: '200px', height: '200px' }}
-      >
+      {/* Local Background Audio */}
+      <div className="fixed hidden pointer-events-none z-[-50]">
         <ReactPlayer 
-          url="https://www.youtube.com/watch?v=4AEQRMKgEUQ" 
+          url="/boston.mp3" 
           playing={isPlayingMusic} 
           loop={true} 
           volume={0.8} 
-          width="100%" 
-          height="100%"
+          width="0"
+          height="0"
           controls={false}
           onReady={() => setIsPlayerReady(true)}
           onError={() => setIsPlayerReady(true)}
-          config={{
-            youtube: {
-              playerVars: { 
-                playsinline: 1,
-                origin: typeof window !== 'undefined' ? window.location.origin : ''
-              }
-            }
-          }}
         />
       </div>
 
@@ -608,17 +597,18 @@ export default function App() {
         </div>
         
         <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col justify-between h-full pt-32">
-          <div className="flex flex-wrap items-center gap-4 mb-8 md:mb-12">
+          <div className="flex flex-wrap items-center justify-end gap-4 mb-8 md:mb-12">
+            <span className="font-sans text-[10px] tracking-widest opacity-60">42.3601° N, 71.0589° W</span>
             <span className="font-sans text-[10px] uppercase font-bold tracking-[0.15em] border border-artistic-text px-3 py-1 rounded-full bg-artistic-bg/50 backdrop-blur-sm">
               City Journal
             </span>
-            <span className="font-sans text-[10px] tracking-widest opacity-60">42.3601° N, 71.0589° W</span>
           </div>
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-end text-right"
           >
             <h1 className="text-artistic-accent text-[65px] sm:text-[90px] md:text-[130px] lg:text-[160px] font-black tracking-[-0.04em] leading-[0.8] mb-8 uppercase">
               The<br />
