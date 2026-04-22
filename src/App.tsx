@@ -554,20 +554,27 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Local Background Audio */}
-      <div className="fixed hidden pointer-events-none z-[-50]">
-        <ReactPlayer 
-          url="/boston.mp3" 
-          playing={isPlayingMusic} 
-          loop={true} 
-          volume={0.8} 
-          width="0"
-          height="0"
-          controls={false}
-          onReady={() => setIsPlayerReady(true)}
-          onError={() => setIsPlayerReady(true)}
-        />
-      </div>
+      {/* Native Local Background Audio */}
+      <audio 
+        src="/boston.mp3" 
+        loop={true} 
+        className="hidden"
+        ref={(audioEl) => {
+          if (audioEl) {
+            audioEl.volume = 0.8;
+            if (isPlayingMusic && audioEl.paused) {
+              const playPromise = audioEl.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(error => console.log('Audio playback prevented', error));
+              }
+            } else if (!isPlayingMusic && !audioEl.paused) {
+              audioEl.pause();
+            }
+          }
+        }}
+        onCanPlayThrough={() => setIsPlayerReady(true)}
+        onError={() => setIsPlayerReady(true)} // Unblock if file not found
+      />
 
       {/* Floating Music Widget */}
       <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-artistic-bg/95 backdrop-blur-md border border-artistic-border px-5 py-3 rounded-full shadow-lg">
