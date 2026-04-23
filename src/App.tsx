@@ -74,7 +74,64 @@ const BOSTON_IMAGES = {
   library_in: "https://www.bpl.org/wp-content/uploads/sites/30/2018/04/McKim-Bates-Hall.jpg",
 };
 
-// ---------------- Navigation & Dynamic Menu ---------------- //
+import { Navigation, ArrowRight, BookmarkPlus, Bookmark, MapPin, Clock, Coffee, Utensils, Play, Pause, X, ChevronDown, Camera, Headphones, LibraryBig, Music, CloudRain, Waves, Snowflake, Compass, Share2, Trophy, BookOpen, Users } from 'lucide-react';
+
+// ... (Add component definition) ...
+
+function BostonCultureSection() {
+  return (
+    <section id="culture" className="py-24 bg-artistic-surface border-b border-artistic-border">
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
+        <div className="mb-16">
+          <SectionHeader title="Cultural Tapestry" tag="05 / Boston Culture" />
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[
+            { icon: Users, title: "Freedom Trail", desc: "Walk through history with the official guides.", link: "https://www.thefreedomtrail.org/" },
+            { icon: BookOpen, title: "Isabella Stewart Gardner Museum", desc: "A stunning art museum housed in a Venetian palace.", link: "https://www.gardnermuseum.org/" },
+            { icon: Music, title: "Boston Symphony Orchestra", desc: "Experience world-class music at Symphony Hall.", link: "https://www.bso.org/" },
+            { icon: LibraryBig, title: "Boston Athenæum", desc: "One of the oldest independent libraries in the US.", link: "https://www.bostonathenaeum.org/" },
+            { icon: BookOpen, title: "Boston Public Library", desc: "The first large free municipal library in the US.", link: "https://www.bpl.org/" },
+            { icon: BookOpen, title: "Boston Book Festival", desc: "Celebrating the power of words.", link: "https://bostonbookfest.org/" },
+            { icon: Utensils, title: "Boston Public Market", desc: "Locally sourced food and crafts.", link: "https://bostonpublicmarket.org/" },
+            { icon: Trophy, title: "Boston Marathon", desc: "The world's oldest annual marathon.", link: "https://www.baa.org/" },
+            { icon: Waves, title: "Head Of The Charles", desc: "The world's largest three-day rowing event.", link: "https://www.hocr.org/" },
+          ].map((item, i) => (
+            <a key={i} href={item.link} target="_blank" rel="noreferrer" className="bg-artistic-bg p-8 border border-artistic-border hover:border-artistic-accent transition-all group">
+              <item.icon className="w-8 h-8 text-artistic-accent mb-4" />
+              <h3 className="font-serif text-xl font-bold mb-2">{item.title}</h3>
+              <p className="font-sans text-xs text-artistic-text/70 mb-4">{item.desc}</p>
+              <span className="flex items-center gap-2 font-sans text-[10px] font-bold uppercase tracking-widest text-artistic-accent group-hover:gap-4 transition-all">
+                Learn More <ArrowRight className="w-3 h-3" />
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+import BostonCreatureQuiz from './components/BostonCreatureQuiz';
+
+// ---------------- Compass Component ---------------- //
+function FloatingCompass() {
+  const [rotation, setRotation] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => setRotation(window.scrollY / 2);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  return (
+    <motion.div 
+      className="fixed top-8 left-8 z-[90] w-12 h-12 rounded-full border border-artistic-text/30 flex items-center justify-center bg-artistic-bg/50 backdrop-blur-sm"
+      style={{ rotate: rotation }}
+    >
+      <Compass className="w-6 h-6 text-artistic-accent" />
+    </motion.div>
+  );
+}
 function NavBar({ savedCount }: { savedCount: number }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -751,6 +808,7 @@ export default function App() {
     }`}>
       <FilmGrain />
       <CustomCursor />
+      <FloatingCompass />
       <AnimatePresence>
         {!hasEntered && (
           <motion.div 
@@ -1028,6 +1086,15 @@ export default function App() {
         </div>
       </section>
 
+      <BostonCultureSection />
+      
+      <section id="quiz" className="py-24 bg-artistic-bg border-b border-artistic-border">
+         <div className="max-w-3xl mx-auto px-6">
+            <h2 className="font-serif text-[40px] font-black text-center mb-12">Boston Creature Personality Quiz</h2>
+            <BostonCreatureQuiz />
+         </div>
+      </section>
+
       {/* 7. Booking / Newsletter Footer Form */}
       <section className="py-32 px-6 bg-artistic-surface border-b border-artistic-border flex flex-col items-center text-center">
         <div className="max-w-2xl w-full">
@@ -1056,9 +1123,12 @@ export default function App() {
       <footer className="py-12 px-6 md:px-12 flex flex-col md:flex-row justify-between items-start md:items-center font-sans text-[10px] uppercase tracking-widest font-bold bg-artistic-bg">
         <p className="opacity-60 mb-6 md:mb-0 text-center md:text-left w-full md:w-auto">© {new Date().getFullYear()} THE BOSTON JOURNAL. ALL RIGHTS RESERVED.</p>
         <div className="flex flex-wrap justify-center gap-8 w-full md:w-auto">
-          <a href="#" className="hover:text-artistic-accent transition-colors">Instagram</a>
-          <a href="#" className="hover:text-artistic-accent transition-colors">Twitter</a>
-          <a href="#" className="hover:text-artistic-accent transition-colors">Terms</a>
+          <a href="https://www.instagram.com/cityofboston/" target="_blank" rel="noreferrer" className="hover:text-artistic-accent transition-colors">Instagram</a>
+          <a href="https://twitter.com/CityOfBoston" target="_blank" rel="noreferrer" className="hover:text-artistic-accent transition-colors">X (Twitter)</a>
+          <a href="https://www.boston.gov/visit-boston" target="_blank" rel="noreferrer" className="hover:text-artistic-accent transition-colors">Visit Boston</a>
+          <button onClick={() => navigator.clipboard.writeText(window.location.href).then(() => alert("Link copied to clipboard!"))} className="hover:text-artistic-accent transition-colors flex items-center gap-1">
+             <Share2 className="w-3 h-3" /> Share
+          </button>
         </div>
       </footer>
 
