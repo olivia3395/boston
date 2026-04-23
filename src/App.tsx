@@ -4,9 +4,57 @@
  */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
-import { Navigation, ArrowRight, BookmarkPlus, Bookmark, MapPin, Clock, Coffee, Utensils, Play, Pause, X, ChevronDown, Camera, Headphones, LibraryBig, Music } from 'lucide-react';
-import ReactPlayer from 'react-player';
+import { motion, useScroll, useTransform, AnimatePresence, useSpring } from 'motion/react';
+import { Navigation, ArrowRight, BookmarkPlus, Bookmark, MapPin, Clock, Coffee, Utensils, Play, Pause, X, ChevronDown, Camera, Headphones, LibraryBig, Music, CloudRain, Waves, Snowflake } from 'lucide-react';
+
+// ---------------- Custom Cursor ---------------- //
+function CustomCursor() {
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    const updateMousePosition = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName.toLowerCase() === 'button' || target.tagName.toLowerCase() === 'a' || target.closest('button') || target.closest('a')) {
+        setIsHovering(true);
+      } else {
+        setIsHovering(false);
+      }
+    };
+
+    window.addEventListener('mousemove', updateMousePosition);
+    window.addEventListener('mouseover', handleMouseOver);
+
+    return () => {
+      window.removeEventListener('mousemove', updateMousePosition);
+      window.removeEventListener('mouseover', handleMouseOver);
+    };
+  }, []);
+
+  return (
+    <>
+      <motion.div
+        className="fixed top-0 left-0 w-4 h-4 bg-artistic-accent rounded-full pointer-events-none z-[9999] mix-blend-difference"
+        animate={{
+          x: mousePosition.x - 8,
+          y: mousePosition.y - 8,
+          scale: isHovering ? 2.5 : 1,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 700,
+          damping: 28,
+          mass: 0.5
+        }}
+      />
+    </>
+  );
+}
 
 const BOSTON_IMAGES = {
   hero: "/hero-bg.jpg",
@@ -30,11 +78,20 @@ const BOSTON_IMAGES = {
 function NavBar({ savedCount }: { savedCount: number }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [bostonTime, setBostonTime] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const time = new Date().toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: '2-digit', minute: '2-digit' });
+      setBostonTime(time);
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   return (
@@ -47,8 +104,16 @@ function NavBar({ savedCount }: { savedCount: number }) {
         animate={{ y: 0 }}
         transition={{ duration: 1, ease: 'easeOut' }}
       >
-        <div className="font-sans text-xl font-black tracking-[-0.05em] cursor-pointer hover:text-artistic-accent transition-colors" onClick={() => { window.scrollTo({top: 0, behavior: 'smooth'}); setMenuOpen(false); }}>
-          B.J.
+        <div className="flex items-center gap-8">
+          <div className="font-sans text-xl font-black tracking-[-0.05em] cursor-pointer hover:text-artistic-accent transition-colors" onClick={() => { window.scrollTo({top: 0, behavior: 'smooth'}); setMenuOpen(false); }}>
+            B.J.
+          </div>
+          {bostonTime && (
+            <div className="hidden md:flex flex-col opacity-60">
+              <span className="font-sans text-[8px] uppercase tracking-widest font-bold">Boston Time</span>
+              <span className="font-sans text-xs tracking-widest">{bostonTime} EST</span>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-6">
@@ -190,8 +255,11 @@ function GalleryGrid({ onSelectImage }: { onSelectImage: (img: any) => void }) {
   );
 }
 
-// ---------------- Lightbox Modal ---------------- //
+// ---------------- Lightbox / Postcard Modal ---------------- //
 function Lightbox({ image, onClose }: { image: any, onClose: () => void }) {
+  const [isPostcardMode, setIsPostcardMode] = useState(false);
+  const [postcardText, setPostcardText] = useState("Greetings from Boston.\nWeather is beautiful today.");
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -206,28 +274,95 @@ function Lightbox({ image, onClose }: { image: any, onClose: () => void }) {
       onClick={onClose}
     >
       <div className="w-full flex justify-between items-center mb-8 shrink-0">
-        <div className="font-sans text-[10px] uppercase font-bold tracking-[0.15em] border border-artistic-text px-3 py-1 rounded-full">
-           Archive View
+        <div className="flex gap-4 items-center">
+          <div className="font-sans text-[10px] uppercase font-bold tracking-[0.15em] border border-artistic-text px-3 py-1 rounded-full">
+            {isPostcardMode ? "Drafting Postcard" : "Archive View"}
+          </div>
+          <button 
+            onClick={(e) => { e.stopPropagation(); setIsPostcardMode(!isPostcardMode); }}
+            className={`font-sans text-[10px] uppercase font-bold tracking-[0.1em] px-4 py-1.5 transition-colors ${
+              isPostcardMode ? 'bg-artistic-accent text-white' : 'hover:text-artistic-accent'
+            }`}
+          >
+            {isPostcardMode ? "View Original Image" : "Create Postcard"}
+          </button>
         </div>
         <button onClick={onClose} className="p-3 bg-white border border-artistic-text rounded-full hover:bg-artistic-accent hover:text-white hover:border-transparent transition-all">
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center w-full min-h-0 relative" onClick={(e) => e.stopPropagation()}>
-         <motion.div 
-           initial={{ scale: 0.95, opacity: 0, y: 20 }}
-           animate={{ scale: 1, opacity: 1, y: 0 }}
-           transition={{ delay: 0.1, duration: 0.4 }}
-           className="h-full border-[12px] border-white bg-white shadow-xl relative max-w-full"
-         >
-           <img src={image.url} alt={image.title} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" />
-         </motion.div>
+      <div className="flex-1 flex items-center justify-center w-full min-h-0 relative perspective-1000" onClick={(e) => e.stopPropagation()}>
+         <AnimatePresence mode="wait">
+            {!isPostcardMode ? (
+              <motion.div 
+                key="image"
+                initial={{ rotateY: 90, opacity: 0 }}
+                animate={{ rotateY: 0, opacity: 1 }}
+                exit={{ rotateY: -90, opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="h-full border-[12px] border-white bg-white shadow-xl relative max-w-full flex flex-col"
+              >
+                <img src={image.url} alt={image.title} className="max-h-full max-w-full object-contain flex-1" referrerPolicy="no-referrer" />
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="postcard"
+                initial={{ rotateY: 90, opacity: 0 }}
+                animate={{ rotateY: 0, opacity: 1 }}
+                exit={{ rotateY: -90, opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="w-full max-w-3xl aspect-[3/2] bg-[#f8f5f0] shadow-2xl relative p-8 md:p-12 flex shadow-[inset_0_0_100px_rgba(0,0,0,0.05)] border-[2px] border-[#e8e0d5]"
+              >
+                {/* Postcard dividing line */}
+                <div className="absolute top-12 bottom-12 left-1/2 w-px bg-artistic-text/20"></div>
+                
+                {/* Left side: Message */}
+                <div className="w-1/2 pr-8 md:pr-12 flex flex-col">
+                  <h3 className="font-sans text-[10px] uppercase tracking-[0.2em] opacity-40 font-bold mb-4">Message</h3>
+                  <textarea 
+                    value={postcardText}
+                    onChange={(e) => setPostcardText(e.target.value)}
+                    className="w-full flex-1 bg-transparent resize-none border-none outline-none font-serif text-2xl md:text-3xl italic leading-relaxed text-artistic-text/80 shadow-none focus:ring-0"
+                    placeholder="Write your note here..."
+                    spellCheck="false"
+                  />
+                </div>
+
+                {/* Right side: Address & Stamp */}
+                <div className="w-1/2 pl-8 md:pl-12 flex flex-col justify-between">
+                  <div className="flex justify-end h-24 mb-8">
+                     <div className="w-20 h-24 border-2 border-artistic-text/20 border-dashed flex flex-col items-center justify-center p-1 relative overflow-hidden bg-white/50">
+                        <img src={image.url} alt="stamp" className="w-full h-full object-cover opacity-80" referrerPolicy="no-referrer"/>
+                        <div className="absolute inset-0 border-[3px] border-[#f8f5f0]"></div>
+                     </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-6 w-full">
+                    <div className="w-full h-px bg-artistic-text/20 content-[''] relative">
+                      <span className="absolute -top-4 font-serif text-lg italic text-artistic-text/80">To: The Boston Archive</span>
+                    </div>
+                    <div className="w-full h-px bg-artistic-text/20"></div>
+                    <div className="w-full h-px bg-artistic-text/20"></div>
+                  </div>
+                  
+                  <div className="mt-8 opacity-40">
+                    <p className="font-sans text-[8px] uppercase tracking-[0.2em] font-bold">Boston, Massachusetts</p>
+                    <p className="font-sans text-[8px] uppercase tracking-[0.2em] font-bold mt-1">EST. 1630</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+         </AnimatePresence>
       </div>
 
       <div className="shrink-0 pt-8 flex flex-col items-center justify-center text-center">
-        <h3 className="font-serif text-3xl font-bold italic mb-2 text-artistic-accent">{image.title}</h3>
-        <span className="font-sans text-[10px] font-bold uppercase tracking-widest opacity-60">Category: {image.category}</span>
+        {!isPostcardMode && (
+          <>
+            <h3 className="font-serif text-3xl font-bold italic mb-2 text-artistic-accent">{image.title}</h3>
+            <span className="font-sans text-[10px] font-bold uppercase tracking-widest opacity-60">Category: {image.category}</span>
+          </>
+        )}
       </div>
     </motion.div>
   );
@@ -484,6 +619,35 @@ function FeatureCard({ id, image, title, subtitle, description, number, isSaved,
   );
 }
 
+// ---------------- Cinematic Lens & Film Grain ---------------- //
+function FilmGrain() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[150] opacity-[0.15] mix-blend-overlay">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full opacity-60 relative z-[-1]">
+        <filter id="noiseFilter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+      </svg>
+    </div>
+  );
+}
+
+function CinematicMarquee() {
+  return (
+    <div className="overflow-hidden whitespace-nowrap bg-artistic-text text-artistic-surface py-3 md:py-5 flex w-full border-y border-artistic-border">
+      <motion.div
+        animate={{ x: [0, "-50%"] }}
+        transition={{ repeat: Infinity, ease: "linear", duration: 25 }}
+        className="flex shrink-0 min-w-max gap-8 items-center"
+      >
+        <span className="font-serif text-2xl md:text-4xl lg:text-5xl font-black uppercase tracking-[-0.04em] italic opacity-90">THE ATHENS OF AMERICA • THE CRADLE OF LIBERTY • THE WALKING CITY • SHAWMUT PENINSULA • </span>
+        <span className="font-serif text-2xl md:text-4xl lg:text-5xl font-black uppercase tracking-[-0.04em] italic opacity-90">THE ATHENS OF AMERICA • THE CRADLE OF LIBERTY • THE WALKING CITY • SHAWMUT PENINSULA • </span>
+      </motion.div>
+    </div>
+  );
+}
+
 // ---------------- MAIN EXPORT ---------------- //
 export default function App() {
   const { scrollYProgress } = useScroll();
@@ -497,6 +661,12 @@ export default function App() {
   const [hasEntered, setHasEntered] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
 
+  // New states for the 3 features
+  const [lensMode, setLensMode] = useState<'standard' | 'noir'>('standard');
+  const [ambientVolumes, setAmbientVolumes] = useState({ rain: 0, harbor: 0, wind: 0 });
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     // Safety fallback: if YouTube iframe takes too long to respond or blocks embedding,
     // we unlock the UI after 2.5 seconds anyway so the user is never permanently stuck.
@@ -504,12 +674,83 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (!audioRef.current) return;
+    
+    // Target volume
+    const targetVolume = 0.8;
+    const fadeSteps = 30; // 30 steps over 3 seconds => 100ms per step
+    const stepTime = 100;
+    
+    // Clear any existing fade intervals
+    if ((window as any).fadeInterval) {
+      clearInterval((window as any).fadeInterval);
+    }
+    
+    if (isPlayingMusic) {
+      // Start Fade In
+      if (audioRef.current.paused) {
+        audioRef.current.volume = 0;
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => console.log('Audio playback prevented', error));
+        }
+      }
+      
+      let currentVolume = audioRef.current.volume;
+      const volumeStep = targetVolume / fadeSteps;
+      
+      (window as any).fadeInterval = setInterval(() => {
+        if (!audioRef.current) {
+           clearInterval((window as any).fadeInterval);
+           return;
+        }
+        currentVolume = Math.min(currentVolume + volumeStep, targetVolume);
+        audioRef.current.volume = currentVolume;
+        if (currentVolume >= targetVolume) {
+          clearInterval((window as any).fadeInterval);
+        }
+      }, stepTime);
+      
+    } else {
+      // Start Fade Out
+      if (audioRef.current.paused) return;
+      
+      let currentVolume = audioRef.current.volume;
+      const fadeOutSteps = 10; // Quicker fade out (1 second)
+      const volumeStep = currentVolume / fadeOutSteps;
+      
+      (window as any).fadeInterval = setInterval(() => {
+        if (!audioRef.current) {
+           clearInterval((window as any).fadeInterval);
+           return;
+        }
+        currentVolume = Math.max(currentVolume - volumeStep, 0);
+        audioRef.current.volume = currentVolume;
+        if (currentVolume <= 0) {
+          clearInterval((window as any).fadeInterval);
+          audioRef.current.pause();
+        }
+      }, stepTime);
+    }
+    
+    return () => {
+      if ((window as any).fadeInterval) {
+        clearInterval((window as any).fadeInterval);
+      }
+    };
+  }, [isPlayingMusic]);
+
   const toggleSave = (id: string) => {
     setSavedItems(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
   };
 
   return (
-    <div className="relative min-h-screen bg-artistic-bg text-artistic-text selection:bg-artistic-accent selection:text-white font-serif">
+    <div className={`relative min-h-screen bg-artistic-bg text-artistic-text selection:bg-artistic-accent selection:text-white font-serif cursor-default transition-all duration-1000 ${
+      lensMode === 'noir' ? 'grayscale-[0.9] contrast-[1.1] brightness-[0.9]' : ''
+    }`}>
+      <FilmGrain />
+      <CustomCursor />
       <AnimatePresence>
         {!hasEntered && (
           <motion.div 
@@ -559,25 +800,25 @@ export default function App() {
         src="/boston.mp3" 
         loop={true} 
         className="hidden"
-        ref={(audioEl) => {
-          if (audioEl) {
-            audioEl.volume = 0.8;
-            if (isPlayingMusic && audioEl.paused) {
-              const playPromise = audioEl.play();
-              if (playPromise !== undefined) {
-                playPromise.catch(error => console.log('Audio playback prevented', error));
-              }
-            } else if (!isPlayingMusic && !audioEl.paused) {
-              audioEl.pause();
-            }
-          }
-        }}
+        ref={audioRef}
         onCanPlayThrough={() => setIsPlayerReady(true)}
         onError={() => setIsPlayerReady(true)} // Unblock if file not found
       />
 
-      {/* Floating Music Widget */}
+      {/* Ambient Audio Elements */}
+      <audio src="https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg" loop={true} className="hidden" ref={(el) => { if (el) { el.volume = ambientVolumes.rain; if (ambientVolumes.rain > 0 && el.paused) el.play(); else if (ambientVolumes.rain === 0 && !el.paused) el.pause(); } }} />
+      <audio src="https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg" loop={true} className="hidden" ref={(el) => { if (el) { el.volume = ambientVolumes.harbor; if (ambientVolumes.harbor > 0 && el.paused) el.play(); else if (ambientVolumes.harbor === 0 && !el.paused) el.pause(); } }} />
+      <audio src="https://actions.google.com/sounds/v1/weather/strong_wind.ogg" loop={true} className="hidden" ref={(el) => { if (el) { el.volume = ambientVolumes.wind; if (ambientVolumes.wind > 0 && el.paused) el.play(); else if (ambientVolumes.wind === 0 && !el.paused) el.pause(); } }} />
+
+      {/* Floating Control Widget */}
       <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-artistic-bg/95 backdrop-blur-md border border-artistic-border px-5 py-3 rounded-full shadow-lg">
+        <button
+          onClick={() => setLensMode(prev => prev === 'standard' ? 'noir' : 'standard')}
+          className="font-sans text-[10px] uppercase tracking-widest font-bold px-3 py-1 border border-artistic-text/20 rounded-full hover:border-artistic-text transition-colors"
+        >
+          Lens: {lensMode}
+        </button>
+        <div className="w-px h-6 bg-artistic-text/20"></div>
         <div className={`w-2 h-2 rounded-full bg-artistic-accent transition-all ${isPlayingMusic ? 'animate-pulse' : 'opacity-30'}`} />
         <span className="font-sans text-[10px] uppercase tracking-widest font-bold hidden sm:block">Atmosphere</span>
         <button 
@@ -647,18 +888,8 @@ export default function App() {
         </div>
       </section>
 
-      {/* Marquee Ticker */}
-      <div className="w-full overflow-hidden border-b border-artistic-border bg-artistic-surface py-3 flex items-center">
-        <motion.div 
-          className="flex whitespace-nowrap font-sans text-[11px] font-bold uppercase tracking-[0.2em] opacity-50"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ ease: "linear", duration: 30, repeat: Infinity }}
-        >
-          {Array(8).fill("EST. 1630 — MASSACHUSETTS BAY COLONY — ATHENS OF AMERICA — CRADLE OF LIBERTY — ").map((text, i) => (
-            <span key={i} className="mx-4 text-artistic-text">{text}</span>
-          ))}
-        </motion.div>
-      </div>
+      {/* Giant Cinematic Marquee Ticker */}
+      <CinematicMarquee />
 
       {/* 2. Interactive Discovery - Neighborhoods */}
       <section id="neighborhoods" className="py-24 px-6 md:px-12 bg-artistic-bg border-b border-artistic-border">
@@ -716,8 +947,58 @@ export default function App() {
                 </div>
              </div>
            </div>
-           <div className="lg:w-2/3 mt-12 lg:mt-0">
+           <div className="lg:w-2/3 mt-12 lg:mt-0 flex flex-col gap-6">
               <AudioPlayerModule isPlayingMusic={isPlayingMusic} toggleMusic={() => setIsPlayingMusic(!isPlayingMusic)} />
+              
+              {/* The Ambient Room (Soundscape Mixer) */}
+              <div className="bg-white border border-artistic-border p-6 md:p-8 flex flex-col xl:flex-row gap-8 items-center">
+                 <div className="flex-1">
+                   <h3 className="font-serif text-2xl font-bold italic mb-2 text-artistic-accent">The Ambient Room</h3>
+                   <p className="font-sans text-[10px] uppercase tracking-widest font-bold opacity-50">Local Soundscapes Mixer</p>
+                 </div>
+                 
+                 <div className="w-full xl:w-2/3 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                   {/* Rain */}
+                   <div className="flex flex-col gap-3">
+                     <div className="flex items-center justify-between font-sans text-xs font-bold opacity-60">
+                       <span className="flex items-center gap-2"><CloudRain className="w-4 h-4" />Rain</span>
+                       <span>{Math.round(ambientVolumes.rain * 100)}%</span>
+                     </div>
+                     <input 
+                       type="range" min="0" max="1" step="0.05" 
+                       value={ambientVolumes.rain} 
+                       onChange={(e) => setAmbientVolumes({...ambientVolumes, rain: parseFloat(e.target.value)})}
+                       className="w-full accent-artistic-accent"
+                     />
+                   </div>
+                   {/* Harbor */}
+                   <div className="flex flex-col gap-3">
+                     <div className="flex items-center justify-between font-sans text-xs font-bold opacity-60">
+                       <span className="flex items-center gap-2"><Waves className="w-4 h-4" />Harbor</span>
+                       <span>{Math.round(ambientVolumes.harbor * 100)}%</span>
+                     </div>
+                     <input 
+                       type="range" min="0" max="1" step="0.05" 
+                       value={ambientVolumes.harbor} 
+                       onChange={(e) => setAmbientVolumes({...ambientVolumes, harbor: parseFloat(e.target.value)})}
+                       className="w-full accent-artistic-accent"
+                     />
+                   </div>
+                   {/* Winter Wind */}
+                   <div className="flex flex-col gap-3">
+                     <div className="flex items-center justify-between font-sans text-xs font-bold opacity-60">
+                       <span className="flex items-center gap-2"><Snowflake className="w-4 h-4" />Wind</span>
+                       <span>{Math.round(ambientVolumes.wind * 100)}%</span>
+                     </div>
+                     <input 
+                       type="range" min="0" max="1" step="0.05" 
+                       value={ambientVolumes.wind} 
+                       onChange={(e) => setAmbientVolumes({...ambientVolumes, wind: parseFloat(e.target.value)})}
+                       className="w-full accent-artistic-accent"
+                     />
+                   </div>
+                 </div>
+              </div>
            </div>
         </div>
       </section>
