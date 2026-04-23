@@ -3,10 +3,6 @@
 > *A curated lens into the soul of the Commonwealth. From the cobblestones of Acorn Street to the sails on the Charles.*
 
 [![Live Demo](https://img.shields.io/badge/Live_Exhibition-View_Now-8B0000?style=for-the-badge&logo=vercel)](https://boston-kappa.vercel.app/)
-[![React](https://img.shields.io/badge/React-18.x-blue?style=flat-square&logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-Dynamic-E902B5?style=flat-square&logo=framer)](https://www.framer.com/motion/)
 
 **The Boston Archive** is not just a landing page; it's an immersive, cinematic digital exhibition. Combining fluid animations, custom environmental soundscapes, and editorial-grade typography, this application transports users directly into the historic and atmospheric streets of Boston, Massachusetts.
 
@@ -64,5 +60,4 @@ This project was crafted with modern frontend tooling, heavily prioritizing perf
 
 <div align="center">
   <p><i>Dedicated to the Spirit of Massachusetts Bay.</i></p>
-  <p><b>EST. 1630</b></p>
 </div>
